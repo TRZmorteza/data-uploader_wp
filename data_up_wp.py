@@ -1,13 +1,38 @@
 import pandas as pd
+import re
 
-# Load the Excel file
-df = pd.read_excel("data.xls")   # use read_csv for CSV if needed
+df = pd.read_excel("data.xls")
 
-# Print column names (headers)
 print("Columns:", df.columns.tolist())
 
-# Loop through rows WITH column titles
+# regex for Persian/English letters + spaces + () + -
+pattern = re.compile(r'(\w+(\s+)?)+', re.UNICODE)
+# regex for integers only
+p = re.compile(r'^\d+$', re.UNICODE)
+names = []
+p_list = []
+car_type=[]
+TARGET_COL = "شرح کالا"
+
 for index, row in df.iterrows():
-    print(f"\nRow {index}:")
-    for col in df.columns:
-        print(f"  {col}: {row[col]}")
+    text = str(row[TARGET_COL]).strip()
+    carT = str(row['مدل خودرو']).strip()
+    price = str(row['قيمت فروش']).strip()
+
+    if pattern.match(carT):
+        car_type.append(carT)
+    
+    if p.match(price):
+        p_list.append(price)
+    
+    if pattern.match(text):
+        names.append(text)
+
+print("\nDetected names:", len(names))
+print("\ncar type:", len(car_type))
+print("Detected prices:", len(p_list))
+
+# write all names + prices together
+with open('res.txt', 'a', encoding='utf-8') as f:
+    for name, price,brand in zip(names, p_list,car_type):
+        f.write(f"name:{name} , ||price:{price},||brand:{brand}\n")
