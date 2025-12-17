@@ -1,10 +1,10 @@
 import os
 import time
-import shutil
-import requests
+import base64
 import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
 
 # -------------------------
 # CONFIG
@@ -31,9 +31,9 @@ def download_image(search_term):
         print(f"Already exists: {filename}")
         return filepath
 
-    
+    print('starting the web service')
     driver = uc.Chrome(version_main=142)
-
+    print('loaded the diver')
     try:
         driver.get("https://www.google.com")
         time.sleep(1)
@@ -52,26 +52,28 @@ def download_image(search_term):
         # Click first image to preview
         try :
             first_img = driver.find_element(By.XPATH, '(//img)[9]')
-            first_img.click()
         except:
             first_img = driver.find_element(By.XPATH, '(//img)[8]')
-            first_img.click()
 
         
         input('check the xpath')
         # Get full-size image src
         img_url = first_img.get_attribute("src")
 
-        # in this part use butful soop to download it 
-        r = requests.get(img_url, stream=True)
-        if r.status_code == 200:
-            with open(filepath, "wb") as f:
-                shutil.copyfileobj(r.raw, f)
-            print(f"Downloaded: {filename}")
-            return filepath
-        else:
-            print(f"Failed to download image for: {search_term}")
-            return None
+
+        # Split header and base64 data
+        header, encoded = img_url.split(",", 1)
+
+        # Decode base64
+        image_bytes = base64.b64decode(encoded)
+
+        # Save to file
+        with open(f"image_paths/{search_term}.jpg", "wb") as f:
+            f.write(image_bytes)
+
+        print("Saved image successfully")
+
+        
 
     except Exception as e:
         print(f"Error downloading {search_term}: {e}")
