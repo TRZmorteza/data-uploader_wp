@@ -7,7 +7,7 @@ def extract_data(file_path="data.xls"):
     Returns a list of dictionaries: data_to_upload.
     """
     df = pd.read_excel(file_path)
-    print("Columns:", df.columns.tolist())
+    # print("Columns:", df.columns.tolist())
 
     # regex for Persian/English letters + spaces + () + -
     text_pattern = re.compile(r'(\w+(\s+)?)+', re.UNICODE)

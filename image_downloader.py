@@ -31,16 +31,14 @@ def download_image(search_term):
         print(f"Already exists: {filename}")
         return filepath
 
-    # Initialize undetected Chrome
-   
-     # Set True if you want headless mode
+    
     driver = uc.Chrome(version_main=142)
 
     try:
         driver.get("https://www.google.com")
         time.sleep(1)
 
-        # Search query
+        
         search_box = driver.find_element(By.NAME, "q")
         search_box.send_keys(search_term)
         search_box.send_keys(Keys.RETURN)
@@ -52,10 +50,15 @@ def download_image(search_term):
         time.sleep(2)
 
         # Click first image to preview
-        first_img = driver.find_element(By.XPATH, '(//img)[9]')
-       
-        
+        try :
+            first_img = driver.find_element(By.XPATH, '(//img)[9]')
+            first_img.click()
+        except:
+            first_img = driver.find_element(By.XPATH, '(//img)[8]')
+            first_img.click()
 
+        
+        input('check the xpath')
         # Get full-size image src
         img_url = first_img.get_attribute("src")
 
@@ -88,33 +91,3 @@ if __name__ == "__main__":
     data_to_upload = extract_data("data.xls")
     download_images_for_data(data_to_upload, limit=True)
 
-
-'''
-CHEAT SHEET (undetected_chromedriver + Google Images):
-
-1. Search box:
-search_box = driver.find_element(By.NAME, "q")
-search_box.send_keys("query")
-search_box.send_keys(Keys.RETURN)
-
-2. Click Images tab:
-images_tab = driver.find_element(By.XPATH, "//a//span[contains(text(),'Images')]")
-images_tab.click()
-
-3. First image to preview:
-first_img = driver.find_element(By.XPATH, '(//img)[9]')
-first_img.click()
-
-4. Full-size image:
-full_img = driver.find_element(By.XPATH, '//img[contains(@class,"n3VNCb") and @src and contains(@src,"http")]')
-img_url = full_img.get_attribute("src")
-
-5. Download image via requests:
-r = requests.get(img_url, stream=True)
-with open(filepath,"wb") as f:
-    shutil.copyfileobj(r.raw, f)
-
-6. Notes:
-- Headless mode: options.headless = True
-- Sleep: time.sleep(1~2) or replace with WebDriverWait for reliability
-'''
